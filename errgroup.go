@@ -30,6 +30,32 @@ func (m MultiError) Error() string {
 	return b.String()
 }
 
+// NewMultiError returns nil if all input errors passed in are nil. Otherwise,
+// it coalesces all input errors into a single error instance. Useful for
+// code like this:
+//
+//   func doThisAndThat() error {
+//     err1 := tryThis()
+//     err2 := tryThat()
+//     return errgroup.NewMultiError(err1, err2)
+//   }
+//
+func NewMultiError(errs ...error) error {
+	var multiErr MultiError
+	for _, err := range errs {
+		if err != nil {
+			multiErr = append(multiErr, err)
+		}
+	}
+
+	if len(multiErr) == 1 {
+		return multiErr[0]
+	} else if len(multiErr) > 1 {
+		return multiErr
+	}
+	return nil
+}
+
 // Group is similar to a sync.WaitGroup, but allows for collecting errors.
 // The collected errors are never reset, so unlike a sync.WaitGroup, this Group
 // can only be used _once_. That is, you may only call Wait on it once.

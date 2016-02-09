@@ -57,3 +57,33 @@ func TestAddDone(t *testing.T) {
 	}
 	ensure.Nil(t, g.Wait())
 }
+
+func TestNewMultiError(t *testing.T) {
+	t.Parallel()
+
+	ensure.Nil(t, errgroup.NewMultiError())
+	ensure.Nil(t, errgroup.NewMultiError(nil))
+	ensure.Nil(t, errgroup.NewMultiError(nil, nil))
+
+	errA := errors.New("err a")
+	errB := errors.New("err b")
+
+	// When only one non-nil error is provided, NewMultiError should return that
+	// error without wrapping it in a MultiError.
+	ensure.DeepEqual(t, errgroup.NewMultiError(errA), errA)
+	ensure.DeepEqual(t, errgroup.NewMultiError(errA, nil), errA)
+	ensure.DeepEqual(t, errgroup.NewMultiError(nil, errB), errB)
+
+	// When more than one non-nil error is provided, than NewMultiError should
+	// return a MultiError instance.
+	multiErrAB := errgroup.NewMultiError(errA, errB).(errgroup.MultiError)
+	multiErrNilAB := errgroup.NewMultiError(nil, errA, errB).(errgroup.MultiError)
+	multiErrANilB := errgroup.NewMultiError(errA, nil, errB).(errgroup.MultiError)
+	multiErrABNil := errgroup.NewMultiError(errA, errB, nil).(errgroup.MultiError)
+
+	expected := errgroup.MultiError{errA, errB}
+	ensure.DeepEqual(t, multiErrAB, expected)
+	ensure.DeepEqual(t, multiErrNilAB, expected)
+	ensure.DeepEqual(t, multiErrANilB, expected)
+	ensure.DeepEqual(t, multiErrABNil, expected)
+}
