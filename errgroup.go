@@ -17,7 +17,7 @@ func (m MultiError) Error() string {
 		panic("MultiError with no errors")
 	}
 	if l == 1 {
-		panic("MultiError with only 1 error")
+		return m[0].Error()
 	}
 	var b bytes.Buffer
 	b.WriteString("multiple errors: ")
