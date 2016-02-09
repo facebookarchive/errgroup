@@ -39,12 +39,12 @@ func TestInvalidNilError(t *testing.T) {
 
 func TestInvalidZeroLengthMultiError(t *testing.T) {
 	defer ensure.PanicDeepEqual(t, "MultiError with no errors")
-	_ := (errgroup.MultiError{}).Error()
+	(errgroup.MultiError{}).Error()
 }
 
 func TestInvalidOneLengthMultiError(t *testing.T) {
 	defer ensure.PanicDeepEqual(t, "MultiError with only 1 error")
-	_ := (errgroup.MultiError{errors.New("")}).Error()
+	(errgroup.MultiError{errors.New("")}).Error()
 }
 
 func TestAddDone(t *testing.T) {
